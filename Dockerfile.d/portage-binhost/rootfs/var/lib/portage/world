@@ -1,1 +1,6 @@
+app-portage/eix
+app-portage/gentoolkit
+app-shells/starship
+app-shells/zsh
 app-text/tree
+dev-vcs/git
