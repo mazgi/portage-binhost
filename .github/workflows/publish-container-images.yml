@@ -26,8 +26,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      #
-      # To validate images: (1/4)
       - name: Pull images
         timeout-minutes: 4
         run: >-
@@ -40,17 +38,22 @@ jobs:
           portage-binhost
           stage3
       #
-      # To validate images: (2/4)
+      # To validate production images: (1/2)
       - name: Start services
         timeout-minutes: 4
         run: >-
           docker compose
           up --wait
-          portage
           portage-binhost
           stage3
+      - name: Create the volume for portage
+        timeout-minutes: 2
+        run: >-
+          docker compose
+          create
+          portage
       #
-      # To build and upload production images: (2/3)
+      # To publish images: (1/2)
       - name: Save images
         timeout-minutes: 4
         run: |-
@@ -59,13 +62,15 @@ jobs:
             docker save --output tmp/container-images/${service} local.local/no-name/${service}:HEAD
           done
       #
-      # To validate production images: (3/4)
+      # To validate production images: (2/2)
       - name: Show logs - portage-binhost
         timeout-minutes: 1
         run: >-
           docker compose logs portage-binhost
-      #
-      # To validate production images: (4/4)
+      - name: Show logs - stage3
+        timeout-minutes: 1
+        run: >-
+          docker compose logs stage3
       - name: Run tests
         timeout-minutes: 4
         run: >-
@@ -77,7 +82,7 @@ jobs:
         run: >-
           docker compose down
       #
-      # To build and upload production images: (3/3)
+      # To publish images: (2/2)
       - name: Upload container images as artifact
         timeout-minutes: 4
         uses: actions/upload-artifact@v3

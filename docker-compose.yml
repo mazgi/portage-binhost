@@ -13,16 +13,10 @@ services:
   # for testing
   portage:
     image: gentoo/portage
-    init: true
     volumes:
       - portage-data:/var/db/repos/gentoo
   stage3:
-    command:
-      - bash
-      - --login
-      - -c
-      - |
-        sleep infinity
+    command: sleep infinity
     environment:
       PORTAGE_BINHOST: http://binhost/var/cache/binpkgs
     image: gentoo/stage3
