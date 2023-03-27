@@ -1,0 +1,152 @@
+name: publish-container-images
+
+on:
+  pull_request:
+    types:
+      - labeled
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/**
+      - Dockerfile.d/**
+      - docker-compose.yml
+    tags:
+      - v*
+  schedule:
+    - cron: "0 0 * * 0" # every Sunday, 00:00
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  start-build-test-stop-save:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      #
+      # To validate images: (1/4)
+      - name: Pull images
+        timeout-minutes: 4
+        run: >-
+          docker compose pull
+      - name: Build images
+        timeout-minutes: 60
+        run: >-
+          docker compose
+          build --build-arg=GIT_SHORT_SHA=${GITHUB_SHA::7}
+          portage-binhost
+          stage3
+      #
+      # To validate images: (2/4)
+      - name: Start services
+        timeout-minutes: 4
+        run: >-
+          docker compose
+          up --wait
+          portage
+          portage-binhost
+          stage3
+      #
+      # To build and upload production images: (2/3)
+      - name: Save images
+        timeout-minutes: 4
+        run: |-
+          for service in portage-binhost
+          do
+            docker save --output tmp/container-images/${service} local.local/no-name/${service}:HEAD
+          done
+      #
+      # To validate production images: (3/4)
+      - name: Show logs - portage-binhost
+        timeout-minutes: 1
+        run: >-
+          docker compose logs portage-binhost
+      #
+      # To validate production images: (4/4)
+      - name: Run tests
+        timeout-minutes: 4
+        run: >-
+          docker compose exec stage3 echo todo
+      #
+      # Clean up
+      - name: Stop services
+        timeout-minutes: 1
+        run: >-
+          docker compose down
+      #
+      # To build and upload production images: (3/3)
+      - name: Upload container images as artifact
+        timeout-minutes: 4
+        uses: actions/upload-artifact@v3
+        with:
+          name: container-images
+          path: tmp/container-images/*
+          retention-days: 1
+
+  publish-docker-images:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    needs:
+      - start-build-test-stop-save
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - ghcr.io
+        service:
+          - portage-binhost
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download container images
+        timeout-minutes: 4
+        uses: actions/download-artifact@v3
+        with:
+          name: container-images
+          path: tmp/container-images/
+      - name: (Test)list container images
+        run: >-
+          ls -al tmp/container-images/
+      - name: Load the container image - ${{ matrix.service }}
+        timeout-minutes: 1
+        run: >-
+          docker load --input tmp/container-images/${{ matrix.service }}
+      - name: (Test)list container images
+        run: >-
+          docker images
+      #
+      # Generate the tag
+      - name: Generate the container tag suffix using the git tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: >-
+          echo TAG_SUFFIX="${GITHUB_REF#refs/*/}-${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - name: Generate the container tag suffix using the current date
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: >-
+          echo TAG_SUFFIX="$(date +%Y%m-)${GITHUB_SHA::7}" >> $GITHUB_ENV
+      #
+      # Prepare each registry
+      # ghcr.io
+      - name: Generate tag prefix for ghcr.io
+        if: ${{ matrix.platform == 'ghcr.io' }}
+        run: >-
+          echo TAG_PREFIX="${{ matrix.platform }}/${{ github.repository_owner }}/${{ matrix.service }}" >> $GITHUB_ENV
+      - name: Login to ghcr.io
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      #
+      # Push the image to the registry
+      - name: Push the image - ${{ matrix.service }}, ${{ matrix.platform }}
+        run: |-
+          docker tag local.local/no-name/${{ matrix.service }}:HEAD ${TAG_PREFIX}:${TAG_SUFFIX}
+          docker push ${TAG_PREFIX}:${TAG_SUFFIX}
+      - name: Push the image as latest - ${{ matrix.service }}, ${{ matrix.platform }}
+        if: github.ref == 'refs/heads/main'
+        run: |-
+          docker tag local.local/no-name/${{ matrix.service }}:HEAD ${TAG_PREFIX}:latest
+          docker push ${TAG_PREFIX}:latest
