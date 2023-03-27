@@ -1,3 +1,8 @@
+app-admin/sudo
+app-i18n/nkf
+app-misc/jq
+app-misc/screenfetch
+app-misc/tmux
 app-portage/eix
 app-portage/gentoolkit
 app-shells/starship
