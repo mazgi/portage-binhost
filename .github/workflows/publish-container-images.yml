@@ -40,6 +40,12 @@ jobs:
           stage3
       #
       # To validate production images: (1/2)
+      - name: Create the volume for portage
+        timeout-minutes: 2
+        run: >-
+          docker compose
+          create
+          portage
       - name: Start services
         timeout-minutes: 4
         run: >-
@@ -47,12 +53,6 @@ jobs:
           up --wait
           portage-binhost
           stage3
-      - name: Create the volume for portage
-        timeout-minutes: 2
-        run: >-
-          docker compose
-          create
-          portage
       #
       # To publish images: (1/2)
       - name: Save images
