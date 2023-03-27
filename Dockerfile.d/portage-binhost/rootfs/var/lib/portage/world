@@ -10,3 +10,10 @@ app-shells/starship
 app-shells/zsh
 app-text/tree
 dev-vcs/git
+sys-apps/gptfdisk
+sys-boot/efibootmgr
+sys-fs/btrfs-progs
+sys-kernel/genkernel
+sys-kernel/gentoo-sources
+sys-process/htop
+sys-process/lsof
