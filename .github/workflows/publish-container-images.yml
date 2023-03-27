@@ -91,7 +91,7 @@ jobs:
           path: tmp/container-images/*
           retention-days: 1
 
-  publish-docker-images:
+  publish-container-images:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     needs:
