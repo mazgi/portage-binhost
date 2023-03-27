@@ -1,4 +1,5 @@
 app-admin/sudo
+app-editors/vim
 app-i18n/nkf
 app-misc/jq
 app-misc/screenfetch
