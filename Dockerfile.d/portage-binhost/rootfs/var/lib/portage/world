@@ -10,7 +10,13 @@ app-shells/starship
 app-shells/zsh
 app-text/tree
 dev-vcs/git
+net-analyzer/iftop
+net-analyzer/netcat
+net-dns/avahi
+net-dns/bind-tools
+net-misc/dhcpcd
 sys-apps/gptfdisk
+sys-auth/nss-mdns
 sys-boot/efibootmgr
 sys-fs/btrfs-progs
 sys-kernel/genkernel
