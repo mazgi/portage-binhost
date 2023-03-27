@@ -1,8 +1,7 @@
-# FROM ghcr.io/mazgi/portage-binhost as cache
+FROM ghcr.io/mazgi/portage-binhost as cache
 FROM gentoo/portage as portage
 FROM gentoo/stage3 as builder
-# COPY --from=cache /var/cache/distfiles /var/cache/distfiles
-# COPY --from=cache /var/cache/binpkgs /var/cache/binpkgs
+COPY --from=cache /usr/share/nginx/html/var/cache/binpkgs /var/cache/binpkgs
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
 COPY rootfs /
 
