@@ -8,7 +8,7 @@ COPY rootfs /
 RUN :\
   && eselect news read all\
   && tar cf /tmp/portage-settings.tar.gz --no-same-owner --no-same-permissions /etc/portage\
-  && emerge --buildpkgonly --usepkg -uvq @world\
+  && emerge --buildpkg --usepkg -uDNqv @world\
   && :
 
 FROM nginx:alpine as binhost
