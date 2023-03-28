@@ -80,8 +80,10 @@ jobs:
       # Clean up
       - name: Stop services
         timeout-minutes: 1
+        # Ignore the return code because it detects other containers that are false positives.
         run: >-
           docker compose down
+          || true
       #
       # To publish images: (2/2)
       - name: Upload container images as artifact
