@@ -1,4 +1,7 @@
 app-admin/sudo
+app-containers/docker
+app-containers/docker-cli
+app-containers/docker-compose
 app-editors/vim
 app-i18n/nkf
 app-misc/jq
