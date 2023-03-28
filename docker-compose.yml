@@ -6,8 +6,8 @@ services:
       context: Dockerfile.d/portage-binhost
     image: local.local/${PROJECT_UNIQUE_ID:-no-name}/portage-binhost:HEAD
     init: true
-    ports:
-      - 8080:80
+    # ports:
+    #   - 8080:80
     pull_policy: never
 
   # for testing
@@ -15,10 +15,24 @@ services:
     image: gentoo/portage
     volumes:
       - portage-data:/var/db/repos/gentoo
-  stage3:
+  portage-binhost-builder:
+    build:
+      args:
+        GIT_SHORT_SHA:
+      context: Dockerfile.d/portage-binhost
+      target: builder
     command: sleep infinity
+    init: true
+  stage3:
+    command:
+      - bash
+      - --login
+      - -c
+      - |
+        curl http://portage-binhost/portage-settings.tar.gz | tar x -C /
+        sleep infinity
     environment:
-      PORTAGE_BINHOST: http://binhost/var/cache/binpkgs
+      PORTAGE_BINHOST: http://portage-binhost/var/cache/binpkgs
     image: gentoo/stage3
     init: true
     volumes:
