@@ -86,7 +86,7 @@ jobs:
       #
       # To publish images: (2/2)
       - name: Upload container images as artifact
-        timeout-minutes: 16
+        timeout-minutes: 60
         uses: actions/upload-artifact@v3
         with:
           name: container-images
