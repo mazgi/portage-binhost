@@ -3,6 +3,7 @@ app-containers/docker
 app-containers/docker-cli
 app-containers/docker-compose
 app-editors/vim
+app-eselect/eselect-repository
 app-i18n/nkf
 app-misc/jq
 app-misc/screenfetch
