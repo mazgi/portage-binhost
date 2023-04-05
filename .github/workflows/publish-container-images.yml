@@ -23,7 +23,7 @@ env:
 
 jobs:
   start-build-test-stop-save:
-    timeout-minutes: 60
+    timeout-minutes: 180
     # runs-on: ubuntu-latest
     runs-on: self-hosted
     steps:
