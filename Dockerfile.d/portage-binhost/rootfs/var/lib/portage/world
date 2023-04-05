@@ -26,6 +26,7 @@ sys-auth/nss-mdns
 sys-boot/efibootmgr
 sys-fs/btrfs-progs
 sys-kernel/genkernel
+sys-kernel/gentoo-kernel
 sys-kernel/gentoo-sources
 sys-process/htop
 sys-process/lsof
