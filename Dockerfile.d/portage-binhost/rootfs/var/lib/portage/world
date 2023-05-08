@@ -10,10 +10,11 @@ app-misc/screenfetch
 app-misc/tmux
 app-portage/eix
 app-portage/gentoolkit
-app-shells/starship
+# app-shells/starship
 app-shells/zsh
 app-text/tree
 dev-lang/go
+dev-lang/rust
 dev-util/cmake
 dev-vcs/git
 net-analyzer/iftop
